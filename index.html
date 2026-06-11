@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Prince Invitation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --gold: #d4af37; }
+        body { margin:0; font-family:'Poppins', sans-serif; background:#0a0a0a; color: white; scroll-behavior: smooth; overflow-x: hidden; }
+        .reveal { opacity: 0; transition: all 1s ease-out; transform: translateY(40px); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        #sparkle-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .sparkle { position: absolute; background: white; border-radius: 50%; opacity: 0.6; animation: float 5s infinite; }
+        @keyframes float { 0% { transform: translateY(0) scale(1); opacity: 0; } 50% { opacity: 0.8; } 100% { transform: translateY(-100vh) scale(0.5); opacity: 0; } }
+        .bg-fixed { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: -2; filter: brightness(0.4); }
+        .bg-mini-zoom { background-size: cover !important; background-repeat: no-repeat; background-position: center; filter: brightness(0.5); }
+        #startScreen { height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position: relative; text-align: center; z-index: 10; }
+        .music-player { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(0,0,0,0.6); padding: 10px; border: 1px solid var(--gold); border-radius: 50px; }
+        #letterScreen { display:none; height:100vh; background:#fff5e6; position:relative; overflow:hidden; z-index: 20;}
+        #envelopeBox { position:absolute; width:100%; height:100%; perspective: 1000px; }
+        .flap { position:absolute; top:0; width:100%; height:50%; background:#e6be8a; clip-path:polygon(0 0, 100% 0, 50% 100%); transition: 1.2s; z-index:3; transform-origin: top; border-bottom: 2px solid #c4a47c; }
+        .open .flap { transform: rotateX(180deg); z-index: 1; }
+        .letter { position:absolute; top:15%; left:10%; width:80%; padding:30px; background:white; border-radius:5px; font-family:'Great Vibes'; font-size: 1.8rem; color: #444; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2; transition: 1s; transform: translateY(100px); opacity: 0; text-align: center; border: 2px solid var(--gold); box-sizing: border-box; }
+        .open .letter { transform: translateY(0); opacity: 1; }
+        .seal { width:80px; height:80px; background:var(--gold); border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); cursor:pointer; z-index: 4; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.6); }
+        .seal:active { transform: translate(-50%, -50%) scale(0.8); }
+        .open .seal { opacity: 0; pointer-events: none; }
+        .section { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; padding: 100px 20px; text-align: center; }
+        .main-headline { font-family: 'Great Vibes'; font-size: clamp(3rem, 8vw, 4.5rem); color: var(--gold); text-shadow: 2px 2px 10px black; z-index: 2; margin-bottom: 30px; }
+        .info-text { z-index: 2; text-align: center; width: 90%; max-width: 700px; margin-top: 30px; padding: 25px; background: rgba(0,0,0,0.7); border-radius: 15px; border: 1px solid var(--gold); line-height: 1.8; backdrop-filter: blur(10px); }
+        .side-by-side-container { display: flex; gap: 20px; z-index: 2; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
+        .side-box { width: 250px; height: 350px; border: 3px solid var(--gold); border-radius: 20px; overflow: hidden; transition: 0.4s; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .side-box:hover { transform: scale(1.05); border-color: white; }
+        .side-box img { width: 100%; height: 100%; object-fit: cover; }
+        .clock-90s { width: 140px; height: 140px; border: 6px double var(--gold); border-radius: 50%; background: radial-gradient(circle, #fffdf5 0%, #fdf5e6 100%); position: relative; box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); z-index: 2; margin-bottom: 40px; }
+        .hand { position: absolute; bottom: 50%; left: 50%; background: #333; transform-origin: bottom; animation: rotateClock 15s linear infinite; width: 4px; height: 50px; border-radius: 2px; }
+        @keyframes rotateClock { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+        .royal-btn { padding:10px 25px; border-radius:25px; background:var(--gold); border:none; cursor:pointer; font-weight:bold; color: black; margin: 10px; transition: 0.2s; }
+        .royal-btn:active { transform: scale(0.9); }
+        #finalBar { position:fixed; bottom:-100px; width:100%; background:var(--gold); color:black; font-weight: bold; text-align:center; padding:15px; cursor:pointer; transition: 0.5s; z-index: 10; font-size: 1.2rem; }  
+        #finalScreen { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); padding:20px; z-index: 100; box-sizing: border-box; overflow-y: auto;}
+    </style>
+</head>
+<body>
+
+<div id="sparkle-container"></div>
+
+<div class="music-player">
+    <audio id="royalAudio" loop>
+        <source src="C:\WhatsApp Audio 2026-04-27 at 6.57.28 PM.mp4" type="audio/mpeg">
+    </audio>
+    <button onclick="toggleMusic()" id="musicBtn" style="background:none; border:none; color:white; cursor:pointer;">🎵 Play Music</button>
+</div>
+
+<div id="startScreen">
+    <div class="bg-fixed" style="background-image: url('C:/WhatsApp Image 2026-04-27 at 12.02.16 PM.jpeg');"></div>
+    <h1 style="font-family:'Great Vibes'; font-size: 5rem; color:var(--gold); margin:0;">Royal Invitation</h1>
+    <p>A Night of Elegance & Celebration</p>
+    <input id="username" placeholder="Guest Name" style="padding:12px; border-radius:25px; border:1px solid var(--gold); text-align:center; width: 220px; background: rgba(0,0,0,0.5); color: white;">
+    <br>
+    <button onclick="start()" class="royal-btn">Step Into The Palace</button>
+</div>
+
+<div id="letterScreen">
+    <div id="envelopeBox">
+        <div class="flap"></div>
+        <div class="letter">
+            <h2 id="displayName"></h2>
+            <p>Welcome to the Royal Journey!</p>
+            <p style="font-size: 3rem;">👑</p>
+        </div>
+        <div class="seal" onclick="openLetter()">👑</div>
+    </div>
+</div>
+
+<div id="mainScreen" style="display:none">
+    <div class="section reveal">
+        <div class="bg-fixed" style="background-image: url('C:/WhatsApp Image 2026-04-26 at 12.25.55 PM (2).jpeg');"></div>
+        <h2 class="main-headline">Royal Arrival</h2>
+        <div class="side-by-side-container">
+            <div class="side-box"><img src="C:\WhatsApp Image 2026-04-27 at 11.55.02 AM.jpeg"></div>
+            <div class="side-box"><img src="C:\WhatsApp Image 2026-04-27 at 11.55.03 AM (1).jpeg"></div>
+            <div class="side-box"><img src="C:\WhatsApp Image 2026-04-27 at 11.55.00 AM.jpeg"></div>
+        </div>
+        <div class="info-text">
+           <p style="font-family:'Great Vibes'; font-size: 2rem; color:var(--gold); margin:0;">The Grand Celebration</p>
+           <p>At 12:00 exactly, we shall cut the cake. All guests are requested to arrive in <b>Party Wear</b>. The theme is <b>Purple</b>, though one special soul shall wear Red.</p>
+        </div>
+    </div>
+    <div class="section reveal">
+        <div class="bg-fixed bg-mini-zoom" style="background-image: url('C:/WhatsApp Image 2026-04-27 at 11.55.03 AM.jpeg');"></div>
+        <h2 class="main-headline">The Magic Hour</h2>
+        <div class="clock-90s"><div class="hand"></div></div>
+        <div class="info-text">
+            <p><b>At 12:30 the Dance Party will begin.</b> First, our birthday girl and her dad will dance together. Then, her father will give her hand to her Prince Charming for their dance, followed by everyone joining the floor.</p>
+        </div>
+    </div>
+    <div class="section reveal"> 
+        <div class="bg-fixed" style="background-image: url('C:/WhatsApp Image 2026-04-27 at 6.15.13 PM.jpeg');"></div>
+        <h2 class="main-headline">Our Celebration</h2>
+        <div class="side-by-side-container">
+            <div class="side-box"><img src="C:\WhatsApp Image 2026-04-27 at 11.55.03 AM.jpeg"></div>
+            <div class="side-box"><img src="C:\WhatsApp Image 2026-04-27 at 6.15.13 PM (1).jpeg"></div>
+        </div>
+        <div class="info-text">
+            <p><b>At 12:45, a surprise wedding will be held!</b> We ask everyone to wear bright colors; <b>Red is reserved strictly for the bride.</b> Your presence would make this occasion truly historic!</p>
+        </div>
+    </div>
+</div>
+
+<div id="finalBar" onclick="openFinal()">💌 Click to RSVP for the Kingdom</div>
+
+<div id="finalScreen">
+    <div style="text-align: center; max-width: 600px; margin: auto;">
+        <h2 style="font-family:'Great Vibes'; font-size: 4rem; color:var(--gold);">RSVP</h2>
+        <button onclick="accept()" class="royal-btn" style="background:#2ecc71;">I Will Attend</button>
+        <button onclick="decline()" class="royal-btn" style="background:#e74c3c; color:white;">Decline</button>
+        <br><br>
+        <div style="margin-top: 40px; background: white; color: black; border-radius: 15px; padding: 20px;">
+            <h3 style="margin-top:0;">Guest List</h3>
+            <table id="guestTable" style="width:100%; border-collapse: collapse;"></table>
+        </div>
+        <br>
+        <button onclick="clearGuestList()" class="royal-btn" style="background:#111;color:white;border:1px solid var(--gold);">🗑 Clear Guest List (Admin)</button>
+        <br><br>
+        <button onclick="document.getElementById('finalScreen').style.display='none'" class="royal-btn" style="background:none; border:1px solid white; color:white;">Back</button>
+    </div>
+</div>
+
+<script>
+    let guests = JSON.parse(localStorage.getItem("royal_guests")) || [];
+
+    function clearGuestList() {
+        let password = prompt("Enter Admin Password:");
+        if(password === "4321") {
+            if(confirm("Are you sure you want to clear the entire guest list?")) {
+                guests = [];
+                localStorage.removeItem("royal_guests");
+                render();
+                alert("Guest list cleared successfully.");
+            }
+        } else {
+            alert("Incorrect Admin Password!");
+        }
+    }
+
+    function createSparkles() {
+        const container = document.getElementById('sparkle-container');
+        for (let i = 0; i < 50; i++) {
+            let s = document.createElement('div');
+            s.className = 'sparkle';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.top = Math.random() * 100 + 'vh';
+            s.style.width = s.style.height = Math.random() * 5 + 'px';
+            s.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(s);
+        }
+    }
+    createSparkles();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('active');
+        });
+    }, { threshold: 0.1 });
+
+    function start(){
+        let n = document.getElementById("username").value;
+        if(!n) return alert("Enter your name, traveler!");
+        
+        // Music Trigger
+        let audio = document.getElementById("royalAudio");
+        let btn = document.getElementById("musicBtn");
+        audio.play().catch(e => console.log("Autoplay blocked by browser"));
+        btn.innerText = "⏸ Pause Music";
+
+        document.getElementById("displayName").innerText = "To: " + n;
+        document.getElementById("startScreen").style.display = "none";
+        document.getElementById("letterScreen").style.display = "block";
+    }
+
+    function toggleMusic() {
+        let a = document.getElementById("royalAudio");
+        let btn = document.getElementById("musicBtn");
+        if (a.paused) { a.play(); btn.innerText = "⏸ Pause Music"; }
+        else { a.pause(); btn.innerText = "🎵 Play Music"; }
+    }
+
+    function openLetter(){
+        document.getElementById("envelopeBox").classList.add("open");
+        setTimeout(() => {
+            document.getElementById("letterScreen").style.display = "none";
+            document.getElementById("mainScreen").style.display = "block";
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }, 1500);
+    }
+
+    window.addEventListener("scroll", () => {
+        let bar = document.getElementById("finalBar");
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+            bar.style.bottom = "0";
+        } else {
+            bar.style.bottom = "-100px";
+        }
+    });
+
+    function accept(){
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        let n = document.getElementById("username").value;
+        guests.push({name: n, status: "Attending"});
+        localStorage.setItem("royal_guests", JSON.stringify(guests));
+        render();
+        alert("Your presence is noted with honor!");
+    }
+
+    function decline(){
+        alert("The Kingdom will miss you.");
+    }
+
+    function openFinal(){ document.getElementById('finalScreen').style.display = "block"; render(); }
+
+    function render(){
+        let t = document.getElementById("guestTable");
+        t.innerHTML = "<tr><th>Name</th><th>Status</th></tr>";
+        guests.forEach(g => { t.innerHTML += `<tr><td style='padding:5px'>${g.name}</td><td>${g.status}</td></tr>`; });
+    }
+</script>
+
+</body>
+</html>
+           
